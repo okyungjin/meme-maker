@@ -39,5 +39,16 @@ const onLineColorChange = (event) => {
   ctx.strokeStyle = event.target.value;
 };
 
+const onColorOptionClick = (event) => {
+  const { color } = event.target.dataset;
+  ctx.strokeStyle = color;
+  lineColor.value = color;
+};
+
 lineWidth.addEventListener('change', onLineWidthChange);
 lineColor.addEventListener('change', onLineColorChange);
+
+const colorOptions = document.querySelectorAll('.color-option');
+colorOptions.forEach((colorOption) => {
+  colorOption.addEventListener('click', onColorOptionClick);
+});
