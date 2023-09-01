@@ -1,4 +1,5 @@
 const lineWidth = document.querySelector('#line-width');
+const lineColor = document.querySelector('#line-color');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
@@ -34,4 +35,9 @@ const onLineWidthChange = (event) => {
   ctx.lineWidth = event.target.value;
 };
 
+const onLineColorChange = (event) => {
+  ctx.strokeStyle = event.target.value;
+};
+
 lineWidth.addEventListener('change', onLineWidthChange);
+lineColor.addEventListener('change', onLineColorChange);
