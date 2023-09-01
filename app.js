@@ -7,6 +7,7 @@ canvas.height = 800;
 
 ctx.lineWidth = 2;
 let isPainting = false;
+let isFilling = true;
 
 const onMouseMove = (event) => {
   if (isPainting) {
@@ -18,7 +19,9 @@ const onMouseMove = (event) => {
 };
 
 const startPainting = () => {
-  isPainting = true;
+  if (!isFilling) {
+    isPainting = true;
+  }
 };
 
 const cancelPainting = () => {
@@ -26,10 +29,18 @@ const cancelPainting = () => {
   isPainting = false;
 };
 
+const onCanvasClick = () => {
+  if (isFilling) {
+    ctx.fillStyle = lineColor.value;
+    ctx.fillRect(0, 0, 800, 800);
+  }
+}
+
 canvas.addEventListener('mousemove', onMouseMove);
 canvas.addEventListener('mousedown', startPainting);
 canvas.addEventListener('mouseup', cancelPainting);
 canvas.addEventListener('mouseleave', cancelPainting);
+canvas.addEventListener('click', onCanvasClick);
 
 const onLineWidthChange = (event) => {
   ctx.lineWidth = event.target.value;
@@ -52,3 +63,10 @@ const colorOptions = document.querySelectorAll('.color-option');
 colorOptions.forEach((colorOption) => {
   colorOption.addEventListener('click', onColorOptionClick);
 });
+
+const modeBtn = document.querySelector('#mode-btn');
+const onModeClick = () => {
+  isFilling = !isFilling;
+  modeBtn.innerText = isFilling ? 'Fill' : 'Draw';
+};
+modeBtn.addEventListener('click', onModeClick);
