@@ -13,7 +13,7 @@ canvas.height = CANVAS_SIZE.HEIGHT;
 
 ctx.lineWidth = 2;
 let isPainting = false;
-let isFilling = true;
+let isFilling = false;
 
 const onMouseMove = (event) => {
   if (isPainting) {
@@ -106,3 +106,20 @@ const onFileChange = (event) => {
   };
 };
 fileInput.addEventListener('change', onFileChange);
+
+// Text
+const textInput = document.querySelector('#text');
+const onCanvasDoubleClick = (event) => {
+  const text = textInput.value;
+  if (!text) {
+    return;
+  }
+  ctx.save();
+  console.log(lineWidth.value)
+  ctx.lineWidth = 1;
+  ctx.font = '48px serif';
+  ctx.fillStyle = lineColor.value;
+  ctx.fillText(text, event.offsetX, event.offsetY);
+  ctx.restore();
+}
+canvas.addEventListener('dblclick', onCanvasDoubleClick)
