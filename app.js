@@ -92,3 +92,17 @@ const onEraserClick = () => {
   isFilling = false;
 };
 eraserBtn.addEventListener('click', onEraserClick);
+
+// File
+const fileInput = document.querySelector('#file');
+const onFileChange = (event) => {
+  const file = event.target.files[0];
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.src = url;
+  image.onload = () => {
+    ctx.drawImage(image, 0, 0, CANVAS_SIZE.WIDTH, CANVAS_SIZE.HEIGHT);
+    fileInput.value = null;
+  };
+};
+fileInput.addEventListener('change', onFileChange);
