@@ -123,3 +123,14 @@ const onCanvasDoubleClick = (event) => {
   ctx.restore();
 }
 canvas.addEventListener('dblclick', onCanvasDoubleClick)
+
+// Save
+const saveBtn = document.querySelector('#save');
+const onSaveClick = () => {
+  const url = canvas.toDataURL();
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'myDrawing.png';
+  a.click();
+};
+saveBtn.addEventListener('click', onSaveClick);
