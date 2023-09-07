@@ -16,23 +16,28 @@ body {
   height: 100vh;
 }
 
-button,
-label {
+button, label {
   all: unset;
   text-align: center;
   color: white;
   background-color: #3498db;
   border: none;
-  padding: 8px 12px;
-  font-size: 16px;
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
   transition: opacity linear 0.1s;
 }
 
-button:hover,
-label:hover {
+label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button:hover {
   opacity: 0.85;
 }
 
@@ -43,6 +48,7 @@ input#text {
   font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
+  display: none;
 }
 
 input#file {
@@ -76,4 +82,8 @@ input#file {
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+}
+
+.hidden {
+  display: none !important;
 }

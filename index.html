@@ -29,16 +29,18 @@
   <canvas></canvas>
   <div class="settings-wrap">
     <input id="line-width" type="range" min="1" max="10" value="5" step="0.5">
-    <button id="mode-btn">Draw</button>
-    <button id="destroy-btn">Destroy</button>
-    <button id="eraser-btn">Erase</button>
+    <button id="mode-btn"><i id="brush-icon" class="fa-solid fa-paintbrush"></i><i id="paint-icon" class="fa-solid fa-fill hidden"></i></button>
+    <button id="destroy-btn"><i class="fa-solid fa-trash-can"></i></button>
+    <button id="eraser-btn"><i class="fa-solid fa-eraser"></i></button>
     <label for="file">
-      Add Photo
+      <i class="fa-solid fa-image"></i>
       <input type="file" accept="image/*" id="file" />
     </label>
-    <input type="text" placeholder="Add text here... :)" id="text" />
-    <button id="save">Save Image</button>
+    <button id="text-btn"><i class="fa-solid fa-font"></i></button>
+    <button id="save-btn"><i class="fa-solid fa-download"></i></button>
   </div>
-  <script src="app.js"></script>
+
+  <script type="module" src="app.js"></script>
+  <script src="https://kit.fontawesome.com/13dbcdce56.js" crossorigin="anonymous"></script>
 </body>
 </html>
