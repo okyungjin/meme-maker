@@ -87,6 +87,8 @@ const onCanvasClick = () => {
   }
 }
 
+
+
 canvas.addEventListener('mousemove', (e) => {
   e.preventDefault();
 
@@ -352,7 +354,7 @@ const onSaveClick = () => {
 };
 saveBtn.addEventListener('click', onSaveClick);
 
-function drawText(x, y) {
+function drawText(x = start.x, y = start.y) {
   console.log(x, y);
 
   text.x = x;
@@ -393,20 +395,75 @@ function drawText(x, y) {
 
   if (isElemSelected) {
     ctx.save();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.strokeRect(x - text.width / 2 - GUIDE_LINE_PADDING, y - text.fontSize - GUIDE_LINE_PADDING / 2, text.width + GUIDE_LINE_PADDING * 2, text.fontSize + GUIDE_LINE_PADDING * 2);
 
-    // leftTop
-    ctx.fillRect(x - text.width / 2 - GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y - text.fontSize - GUIDE_LINE_PADDING / 2 - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
-
-    // rightTop
-    ctx.fillRect(x + text.width / 2 + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y - text.fontSize - GUIDE_LINE_PADDING / 2 - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
-
-    // leftBottom
-    ctx.fillRect(x - text.width / 2 - GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
-
-    // rightBottom
-    ctx.fillRect(x + text.width / 2 + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y  + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
+    // // leftTop
+    // ctx.beginPath();
+    // ctx.arc(x - text.width / 2 - GUIDE_LINE_PADDING, y - text.fontSize - GUIDE_LINE_PADDING, GUIDE_LINE_BOX_SIZE / 2, 0, 2 * Math.PI);
+    // ctx.fill();
+    //
+    // // rightTop
+    // ctx.beginPath();
+    // ctx.arc(x + text.width / 2 - GUIDE_LINE_PADDING, y - text.fontSize + GUIDE_LINE_PADDING, GUIDE_LINE_BOX_SIZE / 2, 0, 2 * Math.PI);
+    // // ctx.arc(x + text.width / 2 + GUIDE_LINE_PADDING, y - text.fontSize - GUIDE_LINE_PADDING / 2 - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
+    // ctx.fill();
+    //
+    // // leftBottom
+    // ctx.arc(x - text.width / 2 - GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
+    //
+    // // rightBottom
+    // ctx.arc(x + text.width / 2 + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, y  + GUIDE_LINE_PADDING - GUIDE_LINE_BOX_SIZE / 2, GUIDE_LINE_BOX_SIZE, GUIDE_LINE_BOX_SIZE);
 
     ctx.restore();
   }
 }
+
+// 더블클릭 이벤트 처리
+canvas.addEventListener("dblclick", function (e) {
+  // 클릭한 위치가 텍스트 영역 내에 있는지 확인
+  const curPos = getCurrentPositionInCanvas(e);
+  if (!isTextSelected(curPos.x, curPos.y , text)) {
+    return;
+  }
+
+  // 기존 텍스트 숨기고 input 요소 생성
+  // canvas.style.display = "none";
+  const span = document.createElement("span");
+  span.classList.add('input');
+  span.innerText = text.text;
+  span.style.position = "absolute";
+  span.style.left = text.x + offset.x - text.width / 2 - 4 + "px";
+  span.style.top = (text.y + offset.y - text.fontSize) - 4 + "px";
+  span.style.fontSize = text.fontSize + "px";
+  span.style.fontWeight = '500';
+  span.style.backgroundColor = 'white';
+  span.style.padding = '10px';
+  span.style.marginLeft = '-4px';
+  span.setAttribute('role', 'textbox');
+  span.setAttribute('contenteditable', 'true');
+  document.body.appendChild(span);
+
+  span.focus();
+  span.innerText = '';
+  span.innerText = text.text;
+
+  // input 요소에서 엔터키 또는 포커스를 잃었을 때 텍스트 업데이트
+  span.addEventListener("blur", function () {
+    isElemSelected = false;
+    text.text = span.innerText;
+    document.body.removeChild(span);
+    drawText();
+  });
+
+
+  span.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      isElemSelected = false;
+      console.log(span.innerText)
+      text.text = span.innerText;
+      document.body.removeChild(span);
+      drawText();
+    }
+  });
+});
