@@ -27,11 +27,11 @@ let isFilling = false;
 //   ctx.moveTo(event.offsetX, event.offsetY);
 // };
 
-
+const curPos = {x: 0, y: 0};
 const start = {x: 0, y: 0};
 const offset = {x: canvas.offsetLeft, y: canvas.offsetTop};
-let selection = false;
-let mouseDown = false;
+let isElemSelected = false;
+let isMouseDown = false;
 
 let isDragging = false;
 let offsetX = 0;
@@ -59,9 +59,9 @@ const startPainting = (e) => {
   console.log(start, offset, winScrollTop);
 
   if( isTextSelected(start.x, start.y, text)){
-    selection = true;
+    isElemSelected = true;
   }
-  mouseDown = true;
+  isMouseDown = true;
 
   // if (!isFilling) {
   //   isPainting = true;
@@ -70,8 +70,8 @@ const startPainting = (e) => {
 
 
 // canvas.addEventListener("mouseup", function(e){
-//   mouseDown = false;
-//   selection = false;
+//   isMouseDown = false;
+//   isElemSelected = false;
 // });
 
 
@@ -90,20 +90,24 @@ const onCanvasClick = () => {
 canvas.addEventListener('mousemove', (e) => {
   e.preventDefault();
 
-  if(mouseDown && selection){
-    const winScrollTop = window.scrollY,
-      mouseX = parseInt(e.clientX - offset.x),
-      mouseY = parseInt(e.clientY - offset.y + winScrollTop);
-    const dx = mouseX - start.x, dy = mouseY - start.y;
+  const curPos = getCurrentPositionInCanvas(e);
+  if (isTextSelected(curPos.x, curPos.y, text)) {
+    canvas.style.cursor = 'move';
+  } else {
+    canvas.style.cursor = 'default';
+  }
 
-    start.x = mouseX;
-    start.y = mouseY;
+  if (isMouseDown && isElemSelected) {
+
+    const dx = curPos.x - start.x, dy = curPos.y - start.y;
+
+    start.x = curPos.x;
+    start.y = curPos.y;
 
     text.x += Number(dx.toFixed(0));
     text.y += Number(dy.toFixed(0));
 
     drawText(start.x, start.y);
-    // ctx.strokeRect(text.x - text.width / 2, text.y - text.height, text.width, text.height);
   }
 });
 
@@ -159,55 +163,27 @@ canvas.addEventListener('mousemove', (e) => {
 // })
 
 canvas.addEventListener('mousedown', (e) => {
-  mouseDown = true;
-
-  const winScrollTop = window.scrollY;
-  start.x = parseInt(e.clientX - offset.x);
-  start.y = parseInt(e.clientY - offset.y + winScrollTop);
-
-  console.log(start.x, start.y)
+  isMouseDown = true;
+  const curPos = getCurrentPositionInCanvas(e);
+  start.x = curPos.x;
+  start.y = curPos.y;
 
   if (isTextSelected(start.x, start.y, text)) {
-    selection = true;
-    console.log('this is text');
+    isElemSelected = true;
   } else {
-    console.log('this is not text');
+    isElemSelected = false;
   }
-
-
-  // isDragging = true;
-
-  //
-  // offsetX = e.clientX - canvas.getBoundingClientRect().left;
-  // offsetY = e.clientY - canvas.getBoundingClientRect().top;
-  // console.log(offsetX, offsetY);
 });
-
-// canvas.addEventListener('mouseup', cancelPainting);
-// canvas.addEventListener('mouseleave', cancelPainting);
-// canvas.addEventListener('click', onCanvasClick);
-
-// canvas.addEventListener("mousemove", function (e) {
-//   if (!isDragging) {
-//     console.log(1)
-//     return;
-//   }
-//
-//   console.log(e.clientY)
-//
-
-//   drawText(start.x, start.y);
-// });
 
 // 드래그 종료
 canvas.addEventListener("mouseup", function (e) {
-  mouseDown = false;
+  isMouseDown = false;
 
   start.x = parseInt(e.clientX - offset.x);
   start.y = parseInt(e.clientY - offset.y + window.scrollY);
 
   if (!isTextSelected(start.x, start.y, text)) {
-    selection = false;
+    isElemSelected = false;
   }
 
   drawText(text.x, text.y);
@@ -215,9 +191,23 @@ canvas.addEventListener("mouseup", function (e) {
 
 // 캔버스를 벗어날 때 드래그 종료
 canvas.addEventListener("mouseleave", function () {
-  mouseDown = false;
+  isMouseDown = false;
   isDragging = false;
+  drawText(text.x, text.y);
 });
+
+
+/**
+ * @param {MouseEvent} e
+ * @return {{x: number, y: number}}
+ */
+function getCurrentPositionInCanvas(e) {
+  return {
+    x: e.clientX - canvas.offsetLeft,
+    y: e.clientY - canvas.offsetTop + window.scrollY
+  }
+}
+
 
 // 초기 텍스트 그리기
 // drawText(text.x, text.y);
@@ -351,27 +341,6 @@ const draggable = ($target) => {
   }
 }
 
-
-function addInput(x, y) {
-  const $div = document.createElement('div');
-  $div.style.position = 'fixed';
-  $div.classList.add('container');
-  $div.style.padding = '10px';
-  $div.style.backgroundColor = 'red';
-  $div.style.cursor = 'move';
-  $div.style.left = (x - 4) + 'px';
-  $div.style.top = (y - 4) + 'px';
-
-  const $newInput = document.createElement('input');
-  $newInput.type = 'text';
-  $newInput.style.position = 'fixed';
-  $newInput.style.left = (x - 4) + 'px';
-  $newInput.style.top = (y - 4) + 'px';
-
-  document.body.appendChild($div);
-  draggable($div);
-}
-
 // Save
 const saveBtn = document.querySelector('#save-btn');
 const onSaveClick = () => {
@@ -396,27 +365,33 @@ function drawText(x, y) {
   ctx.fillStyle = 'black';
   ctx.font = text.font;
   ctx.textAlign = "center";
-  text.width = Number(ctx.measureText(text.text).width.toFixed(0));
   ctx.fillText(text.text, x, y);
+  text.width = Number(ctx.measureText(text.text).width.toFixed(0));
 
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  if (isMouseDown && isElemSelected) {
+    ctx.save();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
 
-  if (mouseDown && selection) {
     // vertical guide line
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
+    if (Math.abs(x - canvas.width / 2) <= 2) {
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
+    }
 
     // horizontal guide line
-    ctx.beginPath();
-    ctx.moveTo(0, y - text.fontSize / 2);
-    ctx.lineTo(canvas.width, y - text.fontSize / 2);
-    ctx.stroke();
+    if (Math.abs(y - canvas.height / 2) <= 2) {
+      ctx.beginPath();
+      ctx.moveTo(0, y - text.fontSize / 2);
+      ctx.lineTo(canvas.width, y - text.fontSize / 2);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
-  if (selection) {
+  if (isElemSelected) {
     ctx.save();
     ctx.strokeRect(x - text.width / 2 - GUIDE_LINE_PADDING, y - text.fontSize - GUIDE_LINE_PADDING / 2, text.width + GUIDE_LINE_PADDING * 2, text.fontSize + GUIDE_LINE_PADDING * 2);
 

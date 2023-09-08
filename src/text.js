@@ -1,6 +1,6 @@
 /**
  * 텍스트 영역을 클릭했는지 판단하는 함수
- * @param {number } curPosX
+ * @param {number} curPosX
  * @param {number} curPosY
  * @param text
  * @return {boolean}
@@ -18,7 +18,6 @@ export const isTextSelected = (curPosX, curPosY, text) => {
     && curPosY >= minY
     && curPosY <= maxY);
 }
-
 
 /*Canvas 내 filltext 추가 함수*/
 export const drawText = function(canvas, ctx, text){
